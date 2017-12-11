@@ -37,6 +37,20 @@ public class User {
 	@ManyToMany(mappedBy="user")
 	private List<Product> listProduct;
 	
+	private TipoUtente tipoUtente;
+	
+	
+	
+	
+	
+	public TipoUtente getTipoUtente() {
+		return tipoUtente;
+	}
+
+	public void setTipoUtente(TipoUtente tipoUtente) {
+		this.tipoUtente = tipoUtente;
+	}
+
 	public UserProfileType getProfileType() {
 		return profileType;
 	}
