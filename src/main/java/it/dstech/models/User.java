@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,9 +34,23 @@ public class User {
 	@OneToMany
 	@JoinColumn(name="User_id")
 	private List<CreditCard> listCard;
-	
+	@ManyToMany(mappedBy="user")
 	private List<Product> listProduct;
 	
+	private TipoUtente tipoUtente;
+	
+	
+	
+	
+	
+	public TipoUtente getTipoUtente() {
+		return tipoUtente;
+	}
+
+	public void setTipoUtente(TipoUtente tipoUtente) {
+		this.tipoUtente = tipoUtente;
+	}
+
 	public UserProfileType getProfileType() {
 		return profileType;
 	}
