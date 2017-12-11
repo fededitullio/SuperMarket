@@ -9,11 +9,11 @@ import javax.persistence.ManyToOne;
 public class CreditCard {
 	@Id
 	@GeneratedValue
-	int id;
-	String numero;
-	LocalDate scadenza;
-	String ccv;
-	double credito;
+	private int id;
+	private String numero;
+	private LocalDate scadenza;
+	private String ccv;
+	private double credito;
 	
 	@ManyToOne
 	private User user;
