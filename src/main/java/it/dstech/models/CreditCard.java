@@ -1,6 +1,7 @@
 package it.dstech.models;
 
 import java.time.LocalDate;
+import java.util.Base64;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,6 +29,16 @@ public class CreditCard {
 	}
 	
 	public CreditCard() {
+	}
+	
+	public void encryptNumero() {
+		String encoded = new String(Base64.getEncoder().encode(this.numero.getBytes()));
+		this.numero = encoded;
+	}
+	
+	public String decryptNumero() {
+		String decoded = new String(Base64.getDecoder().decode(this.numero));
+		return decoded;
 	}
 	
 	public int getId() {

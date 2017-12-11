@@ -61,6 +61,7 @@ public class CreditCardController {
 		try {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			User user = userService.findByUsername(auth.getName());	
+			creditCard.encryptNumero();
 			creditCard.setUser(user);
 			CreditCard saved = creditCardService.saveCreditCard(creditCard);
 			return new ResponseEntity<CreditCard>(saved, HttpStatus.CREATED);
