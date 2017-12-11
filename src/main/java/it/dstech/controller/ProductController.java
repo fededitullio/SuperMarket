@@ -147,7 +147,7 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 		}
 	}
 	
-	//controllo scadenza carta di credito (AAAA-MM)
+	//controllo scadenza carta di credito (AAAA-MM-GG)
 		LocalDate dataOggi=LocalDate.now();
 		boolean codiceEstratto= false;
 		int codice=0;
