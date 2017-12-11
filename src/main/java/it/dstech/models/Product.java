@@ -5,7 +5,6 @@ package it.dstech.models;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -13,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 	@Entity
 public class Product {
@@ -37,6 +35,7 @@ public class Product {
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "PRODUCT_USER", joinColumns = @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
 	private List<User> user=new ArrayList<>();
+	
 	public int getId() {
 		return id;
 	}
