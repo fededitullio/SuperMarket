@@ -56,7 +56,7 @@ public class CreditCardController {
 		}
 	}
 	
-	@PostMapping("/saveupdate")
+	@PostMapping("/addCartaCredito")
 	public ResponseEntity<CreditCard> saveOrUpdateCarta(@RequestBody CreditCard creditCard) {
 		try {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();

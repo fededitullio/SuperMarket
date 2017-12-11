@@ -32,10 +32,12 @@ public class User {
 	private String citta;
 	
 	private String provincia;
+	
 	@JsonIgnore
 	@OneToMany
 	@JoinColumn(name="User_id")
 	private List<CreditCard> listCard;
+	
 	@ManyToMany(mappedBy="user")
 	private List<Product> listProduct;
 	
