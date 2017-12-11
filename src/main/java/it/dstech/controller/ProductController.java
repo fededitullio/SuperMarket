@@ -2,6 +2,7 @@ package it.dstech.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,11 +40,14 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 	private UserServices userServices;
 	@Autowired
 	private CreditCardService creditCardService;
-	
+
 	@GetMapping("/getModel")
 	public Product getModel() {
 		return new Product();
 	}
+	
+	
+	
 	@PostMapping("/save")
 	public ResponseEntity<Product> save(@RequestBody Product product) { 
 		try {
@@ -63,6 +68,9 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	}
+	
+	
+	
 	@GetMapping("/getListProduct")
 	public ResponseEntity<List<Product>> getAllProduct() { 
 		try {
@@ -83,6 +91,9 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	}
+	
+	
+	
 	@GetMapping("/getListByUserId/{id}")
 	public ResponseEntity<List<Product>> getListProductByUserId(@PathVariable("id")int id) { 
 		try {
@@ -93,6 +104,8 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	}
+	
+	
 	@GetMapping("/getListByCategoria/{categoria}")
 	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria")String categoria) { 
 		try {
@@ -103,8 +116,8 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	}
-	@PostMapping("/addProductById/{id}/{idCarta}/{codSegreto}")
-	public ResponseEntity<Product> saveOrUpdateProduct(@PathVariable("id")int id,@PathVariable("idCarta") int idCarta, @PathVariable("codSegreto") String codSegreto) { 
+	@PostMapping("/addProductById/{idCarta}/{codSegreto}")
+	public ResponseEntity<Product> addProdotto(@RequestBody List<Product> carrello,@PathVariable("idCarta") int idCarta, @PathVariable("codSegreto") String codSegreto) { 
 		try {
 	Authentication auth=SecurityContextHolder.getContext().getAuthentication();
 	User user=userServices.findByUsername(auth.getName());
@@ -120,60 +133,68 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 	
 	//controllo scadenza carta di credito (AAAA-MM-GG)
 		LocalDate dataOggi=LocalDate.now();
-		LocalDate dataCarta=LocalDate.of(Integer.parseInt(carta.getAnno()),Integer.parseInt(carta.getMese())));
-		                                                                                                                      //controllo scadenza                 
-		if(productService.getProductById(id).getQuantità()!=0&& trovato&& codSegreto.equals(carta.getCodiceSegreto())&& dataOggi.isBefore(dataCarta)&& carta.getCredito()>=productService.getProductById(id).getPrezzo()) {
-			user.getListaProdotti().add(productService.getProductById(id));
-			double creditoAggiornato=carta.getCredito()-productService.getProductById(id).getPrezzo();
+		boolean codiceEstratto= false;
+		int codice=0;
+		for(Product prodotto:carrello) {                                                                                                                      //controllo scadenza                 
+		if( trovato&& codSegreto.equals(carta.getCcv())&& dataOggi.isBefore(carta.getScadenza())&& carta.getCredito()>=productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
+			if(!codiceEstratto) {
+			Random random=new Random();
+			codice=random.nextInt(10000);
+			codiceEstratto=true;
+			}
+			productService.getProductById(prodotto.getId()).setCodice(codice);
+			user.getListProduct().add(productService.getProductById(prodotto.getId()));
+			double creditoAggiornato=carta.getCredito()-productService.getProductById(prodotto.getId()).getPrezzoIvato();
 			carta.setCredito(creditoAggiornato);
-			userService.saveOrUpdateUser(user);
-			cartaService.saveOrUpdateCartaDiCredito(carta);
-			productService.getProductById(id).getUser().add(user);
-			int quantità= productService.getProductById(id).getQuantità()-1;
-			productService.getProductById(id).setQuantità(quantità);
-			productService.saveOrUpdateProduct(productService.getProductById(id));
+			userServices.saveUser(user);
+			creditCardService.saveCreditCard(carta);
+			productService.getProductById(prodotto.getId()).getUser().add(user);
+			double quantità= productService.getProductById(prodotto.getId()).getQuantitaDisponibile();
+			productService.getProductById(prodotto.getId()).setQuantitaDisponibile(quantità);
+			productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
 			return new ResponseEntity<Product>(HttpStatus.OK);
 		} else {
 			logger.info("aggiunta prodotto fallita");
 			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
+		}
 		}catch(Exception e) {
 		return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+		return null;
 	}
 	
-	@PostMapping("/deleteProductFromListById/{id}")	
-	public ResponseEntity<Product> deleteProductFromListById(@PathVariable("id") int id) {
-		try {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		User user = userService.getByUsername(auth.getName());
-		List<Product> lista = productService.getListProductByUserId(user.getId());
-		boolean trovato = false;
-		Product prodotto = productService.getProductById(id);
-		for (Product prod : lista) {
-			if (prod.getId() == prodotto.getId())
-				trovato = true;
-		}
-
-		if (trovato) {
-			user.getListaProdotti().remove(prodotto);
-			int quantità = prodotto.getQuantità();
-			quantità++;
-			productService.getProductById(id).setQuantità(quantità);
-			userService.saveOrUpdateUser(user);
-			prodotto.getUser().remove(user);
-			productService.saveOrUpdateProduct(prodotto);
-			return new  ResponseEntity<Product>(HttpStatus.OK);
-		}
-		else {
-			logger.info("Eliminazione del prodotto dalla lista falita");
-			return new  ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
-	}catch(Exception e) {
-		logger.info("Eliminazione del prodotto dalla lista falita");
-		return new  ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	}
+//	@PostMapping("/deleteProductFromListById/{id}")	
+//	public ResponseEntity<Product> deleteProductFromListById(@PathVariable("id") int id) {
+//		try {
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//		User user = userService.getByUsername(auth.getName());
+//		List<Product> lista = productService.getListProductByUserId(user.getId());
+//		boolean trovato = false;
+//		Product prodotto = productService.getProductById(id);
+//		for (Product prod : lista) {
+//			if (prod.getId() == prodotto.getId())
+//				trovato = true;
+//		}
+//
+//		if (trovato) {
+//			user.getListaProdotti().remove(prodotto);
+//			int quantità = prodotto.getQuantità();
+//			quantità++;
+//			productService.getProductById(id).setQuantità(quantità);
+//			userService.saveOrUpdateUser(user);
+//			prodotto.getUser().remove(user);
+//			productService.saveOrUpdateProduct(prodotto);
+//			return new  ResponseEntity<Product>(HttpStatus.OK);
+//		}
+//		else {
+//			logger.info("Eliminazione del prodotto dalla lista falita");
+//			return new  ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//		
+//	}catch(Exception e) {
+//		logger.info("Eliminazione del prodotto dalla lista falita");
+//		return new  ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
+//	}
+//	}
 }
