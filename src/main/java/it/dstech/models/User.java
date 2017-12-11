@@ -25,6 +25,8 @@ public class User {
 	
 	private String telefono;
 	
+	private String cap;
+	
 	private String via;
 	
 	private String citta;
@@ -43,6 +45,14 @@ public class User {
 	
 	
 	
+	public String getCap() {
+		return cap;
+	}
+
+	public void setCap(String cap) {
+		this.cap = cap;
+	}
+
 	public TipoUtente getTipoUtente() {
 		return tipoUtente;
 	}
