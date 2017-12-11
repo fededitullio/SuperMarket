@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +19,7 @@ import it.dstech.models.CreditCard;
 import it.dstech.models.User;
 import it.dstech.services.CreditCardService;
 import it.dstech.services.CreditCardServiceImpl;
-import it.dstech.services.UserService;
+import it.dstech.services.UserServices;
 
 @RestController
 @RequestMapping("/creditCard")
@@ -24,10 +27,10 @@ public class CreditCardController {
 	private static final Logger logger = Logger.getLogger(CreditCardServiceImpl.class.getName());
 
 	@Autowired
-	private CreditCardService service;
+	private CreditCardService creditCardService;
 	
 	@Autowired
-	private UserService userService;
+	private UserServices userService;
 
 	@GetMapping("/getModel")
 	public ResponseEntity<CreditCard> getmodel() {
@@ -44,12 +47,44 @@ public class CreditCardController {
 			User user = userService.findByUsername(auth.getName());	
 			logger.info(user.toString());
 
-			List<CreditCard> listaCard = creditCardService.findByUser_id(user.getId());
-			return null;
+			List<CreditCard> listaCard = creditCardService.trovaCarteIdUtente(user.getId());
+			return new ResponseEntity<List<CreditCard>>(listaCard, HttpStatus.OK);
 		}
 		catch (Exception e) {
 			logger.info("Errore: "+e);
 			return new ResponseEntity<List<CreditCard>>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/saveupdate")
+	public ResponseEntity<CreditCard> saveOrUpdateCarta(@RequestBody CreditCard creditCard) {
+		try {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			User user = userService.findByUsername(auth.getName());	
+			creditCard.setUser(user);
+			CreditCard saved = creditCardService.saveCreditCard(creditCard);
+			return new ResponseEntity<CreditCard>(saved, HttpStatus.CREATED);
+		} catch (Exception e) {
+			logger.info("Errore: "+e);
+			return new ResponseEntity<CreditCard>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PostMapping("/deletecard/{cardId}")
+	public ResponseEntity<User> eliminaCard(@PathVariable("cardId") int idCard) {
+		try {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			User user = userService.findByUsername(auth.getName());	
+			CreditCard creditCard = creditCardService.trovaIdCarta(idCard);
+			
+			List<CreditCard> listaCard = creditCardService.trovaCarteIdUtente(user.getId());
+			listaCard.remove(creditCard);
+			user.setListCard(listaCard);
+			userService.saveUser(user);
+			
+			return new ResponseEntity<User>(HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

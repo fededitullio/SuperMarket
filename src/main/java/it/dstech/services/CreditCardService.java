@@ -10,10 +10,10 @@ public interface CreditCardService {
 
 	void deleteCreditCard(int id);
 
-	// TROVA TUTTE LE CARTE ASSOCIATE AD UN'UTENTE
+	// TROVA TUTTE LE CARTE ASSOCIATE AD UN'UTENTE (findByUser_Id)
 	List<CreditCard> trovaCarteIdUtente(int id);
 
-	// TROVA LA CARTA TRAMITE ID
+	// TROVA LA CARTA TRAMITE ID (findById)
 	CreditCard trovaIdCarta(int id);
 
 }
