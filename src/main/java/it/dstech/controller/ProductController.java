@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -80,6 +79,23 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			logger.info("Stampa lista prodotti fallita");
 			return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	}
+		//Prende la lista dei prodotti disponibili e vengono eliminati i prodotti scaduti
+		@GetMapping("/getListProductDisponibile")
+		public ResponseEntity<List<Product>> getAllProductDisponibili() { 
+			try {
+		LocalDate dataOggi=LocalDate.now();
+		List<Product> listaProdotti=(List<Product>) productService.getByQuantitaDisponibileGreaterThan(0.0);
+		for(Product prodotto: listaProdotti) {
+			if(dataOggi.isAfter(prodotto.getDataScadenza())) {
+				listaProdotti.remove(prodotto);
+			}
+		}
+		return new ResponseEntity<List<Product>>(listaProdotti,HttpStatus.OK);
+			} catch(Exception e) {
+				logger.info("Stampa lista prodotti fallita");
+				return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	@DeleteMapping("/deleteProduct/{id}")
 	public ResponseEntity<Product> deleteProduct(@PathVariable int id) { 
