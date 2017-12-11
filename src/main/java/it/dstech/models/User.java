@@ -1,6 +1,7 @@
 package it.dstech.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -120,7 +121,7 @@ public class User {
 	public User() {
 		this.listProduct = new ArrayList<Product>();
 		this.listCard = new ArrayList<CreditCard>();
-		super();
+		
 	}
 	
 	
