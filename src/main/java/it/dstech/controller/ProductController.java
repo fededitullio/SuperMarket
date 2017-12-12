@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.dstech.models.Category;
 import it.dstech.models.CreditCard;
 import it.dstech.models.Product;
+import it.dstech.models.Transazione;
 import it.dstech.models.User;
 import it.dstech.services.CreditCardService;
 import it.dstech.services.ProductService;
-
+import it.dstech.services.TransazioneService;
 import it.dstech.services.UserServices;
 import it.dstech.services.auth.CustomUserDetailsService;
 
@@ -39,6 +41,8 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 	private UserServices userServices;
 	@Autowired
 	private CreditCardService creditCardService;
+	@Autowired
+	private TransazioneService transazioneService;
 
 	@GetMapping("/getModel")
 	public Product getModel() {
@@ -123,7 +127,7 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 	
 	
 	@GetMapping("/getListByCategoria/{categoria}")
-	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria")String categoria) { 
+	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria")Category categoria) { 
 		try {
 	List<Product> listaCategoria=(List<Product>) productService.getListProductByCategoria(categoria);
 	return new ResponseEntity<List<Product>>(listaCategoria,HttpStatus.OK);
@@ -151,14 +155,20 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 		LocalDate dataOggi=LocalDate.now();
 		boolean codiceEstratto= false;
 		int codice=0;
-		for(Product prodotto:carrello) {                                                                                                                      //controllo scadenza                 
+		Transazione transazione=new Transazione();
+		for(Product prodotto:carrello) {     
+			//controllo scadenza                 
 		if( trovato&& codSegreto.equals(carta.getCcv())&& dataOggi.isBefore(carta.getScadenza())&& carta.getCredito()>=productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
 			if(!codiceEstratto) {
 			Random random=new Random();
 			codice=random.nextInt(10000);
 			codiceEstratto=true;
+			transazione.setCodOrdine(codice);
+			transazione.setIdUser(user.getId());
 			}
-			productService.getProductById(prodotto.getId()).setCodice(codice);
+			
+			transazione.getProduct().add(productService.getProductById(prodotto.getId()));
+			transazioneService.saveTransazione(transazione);
 			user.getListProduct().add(productService.getProductById(prodotto.getId()));
 			double creditoAggiornato=carta.getCredito()-productService.getProductById(prodotto.getId()).getPrezzoIvato();
 			carta.setCredito(creditoAggiornato);
