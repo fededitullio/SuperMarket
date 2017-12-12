@@ -112,8 +112,6 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 	}
 	}
 	
-	
-	
 	@GetMapping("/getListByUserId/{id}")
 	public ResponseEntity<List<Product>> getListProductByUserId(@PathVariable("id")int id) { 
 		try {
@@ -125,6 +123,20 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 	}
 	}
 	
+	@GetMapping("/getListTransazioniByUserId")
+	public ResponseEntity<List<Transazione>> getListProductByUserId() { 
+		try {
+			
+			Authentication auth=SecurityContextHolder.getContext().getAuthentication();
+			User user=userServices.findByUsername(auth.getName());
+	List<Transazione> listaTransazione=(List<Transazione>) transazioneService.getListTransazioneByUserId(user.getId());
+	return new ResponseEntity<List<Transazione>>(listaTransazione,HttpStatus.OK);
+		} catch(Exception e) {
+			logger.info("Stampa lista prodotti da user id fallita");
+			return new ResponseEntity<List<Transazione>>(HttpStatus.INTERNAL_SERVER_ERROR);
+	
+		}
+	}
 	
 	@GetMapping("/getListByCategoria/{categoria}")
 	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria")Category categoria) { 
@@ -166,7 +178,7 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			transazione.setCodOrdine(codice);
 			transazione.setIdUser(user.getId());
 			}
-			
+		
 			transazione.getProduct().add(productService.getProductById(prodotto.getId()));
 			transazioneService.saveTransazione(transazione);
 			user.getListProduct().add(productService.getProductById(prodotto.getId()));

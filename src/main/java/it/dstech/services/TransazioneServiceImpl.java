@@ -17,18 +17,8 @@ public class TransazioneServiceImpl implements TransazioneService{
 	public Transazione saveTransazione(Transazione transazione) {
 		return (Transazione) repo.save(transazione);
 	}
-
-	@Override
-	public void deleteTransazione(int id) {
-		repo.delete(id);
-		
-	}
-
 	@Override
 	public List<Transazione> getListTransazioneByUserId(int id) {
 		return (List<Transazione>) repo.findByIdUser(id);
 	}
-
-	
-	
 }
