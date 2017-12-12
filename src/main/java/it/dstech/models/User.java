@@ -51,6 +51,10 @@ public class User {
 	
 	
 	
+	public User() {
+		super();
+	}
+
 	public String getCap() {
 		return cap;
 	}
@@ -149,11 +153,7 @@ public class User {
 		this.listProduct = listProduct;
 	}
 
-	public User() {
-		this.listProduct = new ArrayList<Product>();
-		this.listCard = new ArrayList<CreditCard>();
-		
-	}
+	
 	
 	
 }
