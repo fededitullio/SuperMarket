@@ -3,9 +3,11 @@ package it.dstech.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 @Entity
 public class Transazione {
@@ -14,7 +16,8 @@ public class Transazione {
 	private int idTransazione;
 	private int idUser;
 	private int codOrdine;
-	private List<Product> product=new ArrayList<>();
+	@Transient
+	private List<Product> product=new ArrayList();
    
    
 public int getIdTransazione() {
