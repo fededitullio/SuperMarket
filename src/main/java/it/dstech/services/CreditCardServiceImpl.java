@@ -3,10 +3,11 @@ package it.dstech.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import it.dstech.models.CreditCard;
 import it.dstech.repository.CreditCardRepository;
-
+@Service
 public class CreditCardServiceImpl implements CreditCardService{
 	@Autowired
 	CreditCardRepository repo;
