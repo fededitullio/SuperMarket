@@ -91,9 +91,13 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 		public ResponseEntity<List<Product>> getAllProductDisponibili() { 
 			try {
 		LocalDate dataOggi=LocalDate.now();
+		
 		List<Product> listaProdotti=(List<Product>) productService.getByQuantitaDisponibileGreaterThan(0.0);
 		for(Product prodotto: listaProdotti) {
-			if(dataOggi.isAfter(prodotto.getDataScadenza())) {
+			String[] data =prodotto.getDataScadenza().split("/");
+			LocalDate dataScadenza = LocalDate.of(Integer.parseInt(data[0]),
+					Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+			if(dataOggi.isAfter(dataScadenza)) {
 				listaProdotti.remove(prodotto);
 			}
 		}

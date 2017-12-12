@@ -21,7 +21,7 @@ public class Product {
 	private int id;
 	private String nome;
 	private String marca;
-	private LocalDate dataScadenza;
+	private String dataScadenza;
 	private Category categoria;
 	private double quantitaDisponibile;
 	private double quantitaDaAcquistare;
@@ -56,10 +56,10 @@ public class Product {
 	public void setMarca(String marca) {
 		this.marca = marca;
 	}
-	public LocalDate getDataScadenza() {
+	public String getDataScadenza() {
 		return dataScadenza;
 	}
-	public void setDataScadenza(LocalDate dataScadenza) {
+	public void setDataScadenza(String dataScadenza) {
 		this.dataScadenza = dataScadenza;
 	}
 	public Category getCategoria() {
