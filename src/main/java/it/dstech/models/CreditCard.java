@@ -16,7 +16,7 @@ public class CreditCard {
 	@GeneratedValue
 	private int id;
 	private String numero;
-	private LocalDate scadenza;
+	private String scadenza;
 	private String ccv;
 	private double credito;
 	
@@ -24,7 +24,7 @@ public class CreditCard {
 	@JoinColumn(name = "USER_ID")
 	private User user;
 	
-	public CreditCard(String numero, LocalDate scadenza, String ccv, double credito, User user) {
+	public CreditCard(String numero, String scadenza, String ccv, double credito, User user) {
 		super();
 		this.numero = numero;
 		this.scadenza = scadenza;
@@ -58,10 +58,10 @@ public class CreditCard {
 	public void setNumero(String numero) {
 		this.numero = numero;
 	}
-	public LocalDate getScadenza() {
+	public String getScadenza() {
 		return scadenza;
 	}
-	public void setScadenza(LocalDate scadenza) {
+	public void setScadenza(String scadenza) {
 		this.scadenza = scadenza;
 	}
 	public String getCcv() {

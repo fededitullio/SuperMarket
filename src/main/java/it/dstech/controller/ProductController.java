@@ -1,6 +1,8 @@
 package it.dstech.controller;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
@@ -153,7 +155,7 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 		try {
 	Authentication auth=SecurityContextHolder.getContext().getAuthentication();
 	User user=userServices.findByUsername(auth.getName());
-	CreditCard carta=(CreditCard) creditCardService.trovaCarteIdUtente(user.getId());
+	CreditCard carta = creditCardService.trovaIdCarta(idCarta);
 		
 	boolean trovato=false;
 	if (carta!=null) {
@@ -167,10 +169,14 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 		LocalDate dataOggi=LocalDate.now();
 		boolean codiceEstratto= false;
 		int codice=0;
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+		    String date = carta.getScadenza();
+		    YearMonth scadenzaMese = YearMonth.parse(date, formatter);
+		    LocalDate scadenza = scadenzaMese.atEndOfMonth();
 		Transazione transazione=new Transazione();
 		for(Product prodotto:carrello) {     
 			//controllo scadenza                 
-		if( trovato&& codSegreto.equals(carta.getCcv())&& dataOggi.isBefore(carta.getScadenza())&& carta.getCredito()>=productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
+		if( trovato&& codSegreto.equals(carta.getCcv())&& dataOggi.isBefore(scadenza)&& carta.getCredito()>=productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
 			if(!codiceEstratto) {
 			Random random=new Random();
 			codice=random.nextInt(10000);
