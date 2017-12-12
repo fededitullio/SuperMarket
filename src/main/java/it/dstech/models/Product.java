@@ -38,6 +38,26 @@ public class Product {
 	private List<User> user=new ArrayList<>();
 	
 	
+	public Product() {
+		super();
+	}
+	public Product(String nome, String marca, String dataScadenza, Category categoria, double quantitaDisponibile,
+			double quantitaDaAcquistare, Unita unità, double prezzoUnitario, double prezzoSenzaIva, double prezzoIvato,
+			String img, int offerta) {
+		super();
+		this.nome = nome;
+		this.marca = marca;
+		this.dataScadenza = dataScadenza;
+		this.categoria = categoria;
+		this.quantitaDisponibile = quantitaDisponibile;
+		this.quantitaDaAcquistare = quantitaDaAcquistare;
+		this.unità = unità;
+		this.prezzoUnitario = prezzoUnitario;
+		this.prezzoSenzaIva = prezzoSenzaIva;
+		this.prezzoIvato = prezzoIvato;
+		this.img = img;
+		this.offerta = offerta;
+	}
 	public int getId() {
 		return id;
 	}

@@ -5,7 +5,6 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,7 @@ import it.dstech.models.Category;
 import it.dstech.models.CreditCard;
 import it.dstech.models.Product;
 import it.dstech.models.Transazione;
+import it.dstech.models.Unita;
 import it.dstech.models.User;
 import it.dstech.services.CreditCardService;
 import it.dstech.services.ProductService;
@@ -245,4 +245,35 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 //		return new  ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 //	}
 //	}
+	@PostMapping("/popolaDb")
+	public ResponseEntity<Void> popolaDb(){
+		try {
+			
+			Product prodotto1 = new Product("Latte","Centrale del Latte","17/4/2018",Category.ALIMENTI,90,1,Unita.LITRO,0.4,2.00,2.50,"https://www.granarolo.it/system/granarolo_consumer/attachments/data/000/002/255/original/Latte_parzialmente_scremato_Accadi_Senza_Lattosio_1L.jpg?1490970934",0);
+			Product prodotto2 = new Product("Carne di drago","Radiant Farms","9/9/9999",Category.ALIMENTI,5,1,Unita.CHILO,900,10000,15000,"https://images-na.ssl-images-amazon.com/images/I/51qGYooFtiL.jpg",0);
+			Product prodotto3 = new Product("Caffè Lavazza qualità Oro","Lavazza","6/1/2018",Category.ALIMENTI,124,1,Unita.CHILO,1,4.60,5,"https://hairshop.lv/content/images/thumbs/0018308_lavazza-qualita-oro-kafijas-pupinas-1-kg.jpeg",0);
+			Product prodotto4 = new Product("Pane di Segale","Gilli","21/8/2018",Category.ALIMENTI,0,1,Unita.CHILO,0.2,2.5,3,"http://www.laviticella.it/shop/1465-tm_large_default/rye-bread-landbrot-gilli-500-gr.jpg",0);
+			Product prodotto5 = new Product("Fusilli 5 Cereali","Barilla","17/4/2016",Category.ALIMENTI,90,1,Unita.PEZZO,1,1.60,3,"http://www.giallozafferano.it/images/barilla/ingredienti/i-Fusilli-5-cereali_package_medium.jpg",0);
+			Product prodotto6 = new Product("Omino Bianco Essenza Muschio Bianco","Omino Bianco","10/9/2080",Category.PRODOTTI_CASA,30,1,Unita.PEZZO,4,3.20,4,"https://images-na.ssl-images-amazon.com/images/I/818D%2BZFqWdL._SL1500_.jpg",0);
+			Product prodotto7 = new Product("Kérastase Paris","Paris","21/8/2018",Category.PRODOTTI_PERSONA,30,1,Unita.PEZZO,3,2,4.20,"https://s4.thcdn.com/productimg/960/960/11309649-5684484572839147.jpg",0);
+			Product prodotto8 = new Product("L'Oreal Paris Colour Protect","Paris","5/2/2020",Category.PRODOTTI_PERSONA,61,1,Unita.PEZZO,4,4.80,5.10,"https://www.ocado.com/productImages/269/26965011_0_640x640.jpg?identifier=440a631c3a07cb7426937a3dbcb393a0",0);
+			Product prodotto9 = new Product("Biscotti per Cani","Coop","10/9/2019",Category.ANIMALI,40,1,Unita.PEZZO,4.30,5,5.50,"http://www.coopfirenze.it/uploads/22372/original/14_animali_coop.jpg",20);
+			Product prodotto10 = new Product("Purina One Adult","Purina","9/7/2021",Category.ANIMALI,20,1,Unita.PEZZO,6,6.80,7,"https://images-na.ssl-images-amazon.com/images/I/917%2BYnoduaL._SL1500_.jpg",0);
+			productService.saveOrUpdateProduct(prodotto1);
+			productService.saveOrUpdateProduct(prodotto2);
+			productService.saveOrUpdateProduct(prodotto3);
+			productService.saveOrUpdateProduct(prodotto4);
+			productService.saveOrUpdateProduct(prodotto5);
+			productService.saveOrUpdateProduct(prodotto6);
+			productService.saveOrUpdateProduct(prodotto7);
+			productService.saveOrUpdateProduct(prodotto8);
+			productService.saveOrUpdateProduct(prodotto9);
+			productService.saveOrUpdateProduct(prodotto10);	
+			return new ResponseEntity<Void>(HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	
 }

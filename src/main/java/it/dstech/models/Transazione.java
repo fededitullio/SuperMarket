@@ -46,6 +46,5 @@ public void setProduct(List<Product> product) {
 	this.product = product;
 }
 
-   
 
 }
