@@ -31,19 +31,13 @@ public class Product {
 	private double prezzoIvato;
 	private String img;
 	private int offerta;
-	private int codice;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "PRODUCT_USER", joinColumns = @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID"), inverseJoinColumns = {@JoinColumn(name = "USER_ID", referencedColumnName = "ID"),@JoinColumn(name = "CODICE", referencedColumnName = "CODICE")})
+	@JoinTable(name = "PRODUCT_USER", joinColumns = @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
 	private List<User> user=new ArrayList<>();
 	
-	public int getCodice() {
-		return codice;
-	}
-	public void setCodice(int codice) {
-		this.codice = codice;
-	}
+	
 	public int getId() {
 		return id;
 	}

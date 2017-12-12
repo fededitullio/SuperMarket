@@ -2,6 +2,7 @@ package it.dstech.services;
 
 import java.util.List;
 
+import it.dstech.models.Category;
 import it.dstech.models.Product;
 
 public interface ProductService {
@@ -16,7 +17,7 @@ public interface ProductService {
 	
 	List<Product> getListProductByUserId(int id);
 
-	List<Product> getListProductByCategoria(String categoria);
+	List<Product> getListProductByCategoria(Category categoria);
 	
 	List<Product> getByQuantitaDisponibileGreaterThan(Double quantita);
 }

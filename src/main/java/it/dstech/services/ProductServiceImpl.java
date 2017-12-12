@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.dstech.models.Category;
 import it.dstech.models.Product;
 import it.dstech.repository.ProductRepository;
 @Service
@@ -39,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public List<Product> getListProductByCategoria(String categoria) {
+	public List<Product> getListProductByCategoria(Category categoria) {
 		return (List<Product>) repo.findByCategoria(categoria);
 	}
 
