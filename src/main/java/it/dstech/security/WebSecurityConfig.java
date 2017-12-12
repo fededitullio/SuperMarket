@@ -25,7 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	UserDetailsService userDetailsService;
 
-	@Autowired
+	
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService);
 		auth.authenticationProvider(authenticationProvider());
@@ -34,7 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.httpBasic().and().authorizeRequests().antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers("/getusermodel").permitAll()
-				.antMatchers("/login", "/register","/prodotti/getall","/prodotti/getById/**").permitAll().antMatchers("/creditcard/**","/prodottiacquistati").hasAnyRole("USER", "ADMIN", "DBA")
+				.antMatchers("/login", "/register","/product/getall","/product/getById/**").permitAll().antMatchers("/creditCard/**","/addProductById/**").hasAnyRole("USER", "ADMIN", "DBA")
 				.anyRequest().authenticated().and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 				.permitAll().and().csrf().disable();
 	}

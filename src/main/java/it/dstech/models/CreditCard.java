@@ -3,9 +3,12 @@ package it.dstech.models;
 import java.time.LocalDate;
 import java.util.Base64;
 
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
 
 public class CreditCard {
 	@Id
@@ -16,7 +19,8 @@ public class CreditCard {
 	private String ccv;
 	private double credito;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "USER_ID")
 	private User user;
 	
 	public CreditCard(String numero, LocalDate scadenza, String ccv, double credito, User user) {

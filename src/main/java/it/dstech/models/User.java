@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -33,14 +35,16 @@ public class User {
 	
 	private String provincia;
 	
+	@Enumerated(EnumType.STRING)
+	private UserProfileType profileType;
+
 	@JsonIgnore
-	@OneToMany
-	@JoinColumn(name="User_id")
-	private List<CreditCard> listCard;
-	
+	@OneToMany(mappedBy="user")
+	private List<CreditCard> listCard= new ArrayList();
+	@JsonIgnore
 	@ManyToMany(mappedBy="user")
-	private List<Product> listProduct;
-	
+	private List<Product> listProduct= new ArrayList();
+	@Enumerated(EnumType.STRING)
 	private TipoUtente tipoUtente;
 	
 	
@@ -71,7 +75,7 @@ public class User {
 		this.profileType = profileType;
 	}
 
-	private UserProfileType profileType;
+
 
 	public int getId() {
 		return id;
