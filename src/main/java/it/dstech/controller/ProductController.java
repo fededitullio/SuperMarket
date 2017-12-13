@@ -197,19 +197,18 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			userServices.saveUser(user);
 			creditCardService.saveCreditCard(carta);
 			productService.getProductById(prodotto.getId()).getUser().add(user);
-			double quantità= productService.getProductById(prodotto.getId()).getQuantitaDisponibile();
+			double quantità= productService.getProductById(prodotto.getId()).getQuantitaDisponibile()-1;
 			productService.getProductById(prodotto.getId()).setQuantitaDisponibile(quantità);
 			productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
-			return new ResponseEntity<Product>(HttpStatus.OK);
 		} else {
 			logger.info("aggiunta prodotto fallita");
 			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		}
+		return new ResponseEntity<Product>(HttpStatus.OK);
 		}catch(Exception e) {
 		return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-		return null;
 	}
 	
 //	@PostMapping("/deleteProductFromListById/{id}")	
