@@ -3,6 +3,7 @@ package it.dstech.controller;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.apache.log4j.Logger;
@@ -91,17 +92,21 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 		public ResponseEntity<List<Product>> getAllProductDisponibili() { 
 			try {
 		LocalDate dataOggi=LocalDate.now();
-		
+		logger.info("son prima della query");
 		List<Product> listaProdotti=(List<Product>) productService.getByQuantitaDisponibileGreaterThan(0.0);
+		List<Product> listaFinale=new ArrayList();
+		logger.info(listaProdotti);
 		for(Product prodotto: listaProdotti) {
 			String[] data =prodotto.getDataScadenza().split("/");
-			LocalDate dataScadenza = LocalDate.of(Integer.parseInt(data[0]),
-					Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-			if(dataOggi.isAfter(dataScadenza)) {
-				listaProdotti.remove(prodotto);
+			logger.info(data[0]+" "+data[1]+" "+data[2]);
+			LocalDate dataScadenza = LocalDate.of(Integer.parseInt(data[2]),Integer.parseInt(data[1]), Integer.parseInt(data[0]));
+			logger.info(dataScadenza+"");
+			if(dataOggi.isBefore(dataScadenza)) {
+				logger.info(prodotto);
+				listaFinale.add(prodotto);
 			}
 		}
-		return new ResponseEntity<List<Product>>(listaProdotti,HttpStatus.OK);
+		return new ResponseEntity<List<Product>>(listaFinale,HttpStatus.OK);
 			} catch(Exception e) {
 				logger.info("Stampa lista prodotti fallita");
 				return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -192,7 +197,7 @@ private static final Logger logger=Logger.getLogger(CustomUserDetailsService.cla
 			transazione.getProduct().add(productService.getProductById(prodotto.getId()));
 			transazioneService.saveTransazione(transazione);
 			user.getListProduct().add(productService.getProductById(prodotto.getId()));
-			double creditoAggiornato=carta.getCredito()-productService.getProductById(prodotto.getId()).getPrezzoIvato();
+			double creditoAggiornato=carta.getCredito()-productService.getProductById(prodotto.getId()).getPrezzoIvato()*prodotto.getQuantitaDaAcquistare();
 			carta.setCredito(creditoAggiornato);
 			userServices.saveUser(user);
 			creditCardService.saveCreditCard(carta);
