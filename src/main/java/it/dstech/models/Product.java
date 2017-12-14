@@ -31,6 +31,7 @@ public class Product {
 	private double prezzoIvato;
 	private String img;
 	private int offerta;
+	private double prezzoScontato;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -42,8 +43,7 @@ public class Product {
 		super();
 	}
 	public Product(String nome, String marca, String dataScadenza, Category categoria, double quantitaDisponibile,
-			double quantitaDaAcquistare, Unita unità, double prezzoUnitario, double prezzoSenzaIva, double prezzoIvato,
-			String img, int offerta) {
+			double quantitaDaAcquistare, Unita unità, double prezzoUnitario,String img, int offerta) {
 		super();
 		this.nome = nome;
 		this.marca = marca;
@@ -53,10 +53,11 @@ public class Product {
 		this.quantitaDaAcquistare = quantitaDaAcquistare;
 		this.unità = unità;
 		this.prezzoUnitario = prezzoUnitario;
-		this.prezzoSenzaIva = prezzoSenzaIva;
-		this.prezzoIvato = prezzoIvato;
+		this.prezzoIvato = prezzoUnitario*quantitaDaAcquistare;
+		this.prezzoSenzaIva = prezzoIvato- prezzoIvato*22/100;
 		this.img = img;
 		this.offerta = offerta;
+		this.prezzoScontato=prezzoIvato-prezzoIvato*offerta/100;
 	}
 	public int getId() {
 		return id;
@@ -142,13 +143,13 @@ public class Product {
 	public void setUser(List<User> user) {
 		this.user = user;
 	}
-	@Override
-	public String toString() {
-		return "Product [id=" + id + ", nome=" + nome + ", marca=" + marca + ", dataScadenza=" + dataScadenza
-				+ ", quantitaDisponibile=" + quantitaDisponibile + ", quantitaDaAcquistare=" + quantitaDaAcquistare
-				+ ", prezzoUnitario=" + prezzoUnitario + ", prezzoSenzaIva=" + prezzoSenzaIva + ", prezzoIvato="
-				+ prezzoIvato + ", img=" + img + ", offerta=" + offerta + ", user=" + user + "]";
+	public double getPrezzoScontato() {
+		return prezzoScontato;
 	}
+	public void setPrezzoScontato(double prezzoScontato) {
+		this.prezzoScontato = prezzoScontato;
+	}
+
 	
 	}
 	
