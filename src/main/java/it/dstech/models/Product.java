@@ -2,9 +2,9 @@ package it.dstech.models;
 
 
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 	@Entity
 public class Product {
@@ -25,7 +26,7 @@ public class Product {
 	private Category categoria;
 	private double quantitaDisponibile;
 	private double quantitaDaAcquistare;
-	private Unita unità;
+	private Unita unita;
 	private double prezzoUnitario;
 	private double prezzoSenzaIva;
 	private double prezzoIvato;
@@ -43,7 +44,7 @@ public class Product {
 		super();
 	}
 	public Product(String nome, String marca, String dataScadenza, Category categoria, double quantitaDisponibile,
-			double quantitaDaAcquistare, Unita unità, double prezzoUnitario,String img, int offerta) {
+			double quantitaDaAcquistare, Unita unita, double prezzoUnitario,String img, int offerta) {
 		super();
 		this.nome = nome;
 		this.marca = marca;
@@ -51,7 +52,7 @@ public class Product {
 		this.categoria = categoria;
 		this.quantitaDisponibile = quantitaDisponibile;
 		this.quantitaDaAcquistare = quantitaDaAcquistare;
-		this.unità = unità;
+		this.unita = unita;
 		this.prezzoUnitario = prezzoUnitario;
 		this.prezzoIvato = prezzoUnitario*quantitaDaAcquistare;
 		this.prezzoSenzaIva = prezzoIvato- prezzoIvato*22/100;
@@ -101,18 +102,18 @@ public class Product {
 	@Override
 	public String toString() {
 		return "Product [nome=" + nome + ", marca=" + marca + ", dataScadenza=" + dataScadenza + ", categoria="
-				+ categoria + ", quantitaDisponibile=" + quantitaDisponibile + ", unità=" + unità + ", prezzoUnitario="
+				+ categoria + ", quantitaDisponibile=" + quantitaDisponibile + ", unità=" + unita + ", prezzoUnitario="
 				+ prezzoUnitario + ", prezzoIvato=" + prezzoIvato + ", offerta=" + offerta + ", prezzoScontato="
 				+ prezzoScontato + "]";
 	}
 	public void setQuantitaDaAcquistare(double quantitaDaAcquistare) {
 		this.quantitaDaAcquistare = quantitaDaAcquistare;
 	}
-	public Unita getUnità() {
-		return unità;
+	public Unita getUnita() {
+		return unita;
 	}
-	public void setUnità(Unita unità) {
-		this.unità = unità;
+	public void setUnità(Unita unita) {
+		this.unita = unita;
 	}
 	public double getPrezzoUnitario() {
 		return prezzoUnitario;

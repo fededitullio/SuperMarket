@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.dstech.models.StoricoOfferte;
-import it.dstech.repository.CreditCardRepository;
 import it.dstech.repository.StoricoOfferteRepository;
 @Service
 public class StoricoOfferteServicesImpl implements StoricoOfferteServices {

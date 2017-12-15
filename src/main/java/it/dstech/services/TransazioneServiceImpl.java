@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import it.dstech.models.Transazione;
 import it.dstech.repository.TransazioneRepository;
 
@@ -21,4 +22,10 @@ public class TransazioneServiceImpl implements TransazioneService{
 	public List<Transazione> getListTransazioneByUserId(int id) {
 		return (List<Transazione>) repo.findByIdUser(id);
 	}
+	@Override
+	public Transazione findById(int id) {
+		// TODO Auto-generated method stub
+		return (Transazione) repo.findOne(id);
+	}
+	
 }

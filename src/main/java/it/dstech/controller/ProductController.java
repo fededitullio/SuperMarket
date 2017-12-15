@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.dstech.models.Category;
 import it.dstech.models.CreditCard;
+import it.dstech.models.ProdottoAcquistato;
 import it.dstech.models.Product;
 import it.dstech.models.StoricoOfferte;
 import it.dstech.models.Transazione;
 import it.dstech.models.Unita;
 import it.dstech.models.User;
 import it.dstech.services.CreditCardService;
+import it.dstech.services.ProdottoAcquistatoServices;
 import it.dstech.services.ProductService;
 import it.dstech.services.StoricoOfferteServices;
 import it.dstech.services.TransazioneService;
@@ -50,6 +53,8 @@ public class ProductController {
 	private TransazioneService transazioneService;
 	@Autowired
 	private StoricoOfferteServices storicoServices;
+	@Autowired
+	private ProdottoAcquistatoServices prodottoAcquistatoService;
 
 	@GetMapping("/getModel")
 	public Product getModel() {
@@ -81,7 +86,7 @@ public class ProductController {
 	@GetMapping("/getListProduct")
 	public ResponseEntity<List<Product>> getAllProduct() {
 		try {
-			
+
 			List<Product> listaProdotti = (List<Product>) productService.getAllProduct();
 			return new ResponseEntity<List<Product>>(listaProdotti, HttpStatus.OK);
 		} catch (Exception e) {
@@ -96,18 +101,18 @@ public class ProductController {
 	public ResponseEntity<List<Product>> getAllProductDisponibili() {
 		try {
 			LocalDate dataOggi = LocalDate.now();
-			logger.info("son prima della query");
+
 			List<Product> listaProdotti = (List<Product>) productService.getByQuantitaDisponibileGreaterThan(0.0);
 			List<Product> listaFinale = new ArrayList();
-			logger.info(listaProdotti);
+
 			for (Product prodotto : listaProdotti) {
 				String[] data = prodotto.getDataScadenza().split("/");
-				logger.info(data[0] + " " + data[1] + " " + data[2]);
+
 				LocalDate dataScadenza = LocalDate.of(Integer.parseInt(data[2]), Integer.parseInt(data[1]),
 						Integer.parseInt(data[0]));
-				logger.info(dataScadenza + "");
+
 				if (dataOggi.isBefore(dataScadenza)) {
-					logger.info(prodotto);
+
 					listaFinale.add(prodotto);
 				}
 			}
@@ -145,18 +150,20 @@ public class ProductController {
 		List<StoricoOfferte> lista = storicoServices.getListStoricoOfferte();
 		LocalDate dataOggi = LocalDate.now();
 		LocalDate dataOfferta = lista.get(lista.size() - 1).getDataOfferta();
+		logger.info(dataOggi + " data di oggi ");
+		logger.info(dataOfferta + " data dell'offerta ");
 		String risposta = "";
 		String[] data = {};
 		int codice = 0;
 		try {
 			if (dataOfferta.isBefore(dataOggi)) {
-				StoricoOfferte storico= new StoricoOfferte();
+				StoricoOfferte storico = new StoricoOfferte();
 				storico.setDataOfferta(dataOggi);
 				storicoServices.saveStoricoOfferte(storico);
-				logger.info("son prima della query");
+				logger.info("son prima della query eeeeeeeh");
 				List<Product> listaProdotti = (List<Product>) productService.getAllProduct();
-				for(Product prodotto:listaProdotti) {
-					productService.getProductById(prodotto.getId()).setOfferta(40);
+				for (Product prodotto : listaProdotti) {
+					productService.getProductById(prodotto.getId()).setOfferta(0);
 					productService.getProductById(prodotto.getId()).sconto();
 					productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
 				}
@@ -164,34 +171,35 @@ public class ProductController {
 				List<Product> listaFinale = new ArrayList();
 
 				for (Product prodotto : listaProdotti) {
-					
+
 					data = prodotto.getDataScadenza().split("/");
-					
+
 					LocalDate dataScadenza = LocalDate.of(Integer.parseInt(data[2]), Integer.parseInt(data[1]),
 							Integer.parseInt(data[0]));
-					
+
 					if (dataOggi.isBefore(dataScadenza)) {
 						logger.info(prodotto);
 						listaFinale.add(prodotto);
 					}
 				}
-				List<Product> listaNonScontati = listaFinale;
+
 				for (Product prodotto : listaFinale) {
 					data = prodotto.getDataScadenza().split("/");
 
 					if (Integer.parseInt(data[2]) == dataOggi.getYear()) {
-						
+
 						if (Integer.parseInt(data[1]) == dataOggi.getMonthValue()) {
-							
+
 							if ((Integer.parseInt(data[0]) - dataOggi.getDayOfMonth()) >= 0) {
-								
+
 								if ((Integer.parseInt(data[0]) - dataOggi.getDayOfMonth()) <= 3) {
-									
-									listaNonScontati.remove(prodotto);
+
 									productService.getProductById(prodotto.getId()).setOfferta(40);
+
 									productService.getProductById(prodotto.getId()).sconto();
+
 									productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
-									
+
 								}
 							}
 						}
@@ -202,10 +210,10 @@ public class ProductController {
 
 				while (i < 5) {
 					Random random = new Random();
-					codice = random.nextInt(listaNonScontati.size() - 1);
-					logger.info(codice);
-					if (listaNonScontati.get(codice).getOfferta() == 0) {
-						logger.info("sono nell'if del while con il random");
+					codice = random.nextInt(listaFinale.size() - 1);
+
+					if (listaFinale.get(codice).getOfferta() == 0) {
+
 						productService.getProductById(listaFinale.get(codice).getId()).setOfferta(10);
 						productService.getProductById(listaFinale.get(codice).getId()).sconto();
 
@@ -224,18 +232,16 @@ public class ProductController {
 		}
 	}
 
-	@GetMapping("/getListTransazioniByUserId")
-	public ResponseEntity<List<Transazione>> getListProductByUserId() {
+	@GetMapping("/getListProdottiByTransazioneId/{id}")
+	public ResponseEntity<List<ProdottoAcquistato>> getListProductAcquistatiByUserId (@PathVariable ("id") int id) {
 		try {
 
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			User user = userServices.findByUsername(auth.getName());
-			List<Transazione> listaTransazione = (List<Transazione>) transazioneService
-					.getListTransazioneByUserId(user.getId());
-			return new ResponseEntity<List<Transazione>>(listaTransazione, HttpStatus.OK);
+			
+			List<ProdottoAcquistato> listaTransazione = (List<ProdottoAcquistato>) prodottoAcquistatoService.getListAcquistiByTransazazioneId(transazioneService.findById(id));
+			return new ResponseEntity<List<ProdottoAcquistato>>(listaTransazione, HttpStatus.OK);
 		} catch (Exception e) {
-			logger.info("Stampa lista prodotti da user id fallita");
-			return new ResponseEntity<List<Transazione>>(HttpStatus.INTERNAL_SERVER_ERROR);
+			logger.info("Stampa lista prodotti da user id fallita" + e);
+			return new ResponseEntity<List<ProdottoAcquistato>>(HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
 	}
@@ -276,6 +282,7 @@ public class ProductController {
 			YearMonth scadenzaMese = YearMonth.parse(date, formatter);
 			LocalDate scadenza = scadenzaMese.atEndOfMonth();
 			Transazione transazione = new Transazione();
+			transazioneService.saveTransazione(transazione);
 			for (Product prodotto : carrello) {
 				// controllo scadenza
 				if (trovato && codSegreto.equals(carta.getCcv()) && dataOggi.isBefore(scadenza)
@@ -287,27 +294,36 @@ public class ProductController {
 						transazione.setCodOrdine(codice);
 						transazione.setIdUser(user.getId());
 					}
+					ProdottoAcquistato prodottoAcquistato = new ProdottoAcquistato(prodotto.getNome(),
+							prodotto.getMarca(), prodotto.getDataScadenza(), prodotto.getCategoria(),
+							prodotto.getQuantitaDisponibile(), prodotto.getQuantitaDaAcquistare(), prodotto.getUnita(),
+							prodotto.getPrezzoUnitario(), prodotto.getPrezzoSenzaIva(), prodotto.getPrezzoIvato(),
+							prodotto.getImg(), prodotto.getOfferta(), prodotto.getPrezzoScontato());
+					logger.info(prodottoAcquistato);
 
-					transazione.getProduct().add(productService.getProductById(prodotto.getId()));
-					transazioneService.saveTransazione(transazione);
-					user.getListProduct().add(productService.getProductById(prodotto.getId()));
+					transazione.getProduct().add(prodottoAcquistato);
+					logger.info(transazione.getProduct());
+					prodottoAcquistato.setTransazione(transazione);
+					prodottoAcquistatoService.saveOrUpdateProduct(prodottoAcquistato);
 					double creditoAggiornato = carta.getCredito()
-							- productService.getProductById(prodotto.getId()).getPrezzoIvato()
+							- productService.getProductById(prodotto.getId()).getPrezzoScontato()
 									* prodotto.getQuantitaDaAcquistare();
 					carta.setCredito(creditoAggiornato);
 					userServices.saveUser(user);
 					creditCardService.saveCreditCard(carta);
-					productService.getProductById(prodotto.getId()).getUser().add(user);
 					double quantità = productService.getProductById(prodotto.getId()).getQuantitaDisponibile() - 1;
 					productService.getProductById(prodotto.getId()).setQuantitaDisponibile(quantità);
 					productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
 				} else {
 					logger.info("aggiunta prodotto fallita");
+					
 					return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 			}
+			transazioneService.saveTransazione(transazione);
 			return new ResponseEntity<Product>(HttpStatus.OK);
 		} catch (Exception e) {
+			logger.info(e);
 			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -350,7 +366,7 @@ public class ProductController {
 	public ResponseEntity<Void> popolaDb() {
 		try {
 			LocalDate dataOggi = LocalDate.now();
-			StoricoOfferte storico= new StoricoOfferte();
+			StoricoOfferte storico = new StoricoOfferte();
 			storico.setDataOfferta(dataOggi);
 			storicoServices.saveStoricoOfferte(storico);
 			Product prodotto1 = new Product("Latte", "Centrale del Latte", "17/4/2018", Category.ALIMENTI, 90, 1,

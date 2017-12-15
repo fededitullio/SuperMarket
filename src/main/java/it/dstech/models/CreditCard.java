@@ -1,6 +1,5 @@
 package it.dstech.models;
 
-import java.time.LocalDate;
 import java.util.Base64;
 
 import javax.persistence.Entity;
