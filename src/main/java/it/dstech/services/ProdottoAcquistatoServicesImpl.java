@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import it.dstech.models.ProdottoAcquistato;
 import it.dstech.models.Transazione;
 import it.dstech.repository.ProdottoAcquistatoRepository;
+
 @Service
 public class ProdottoAcquistatoServicesImpl implements ProdottoAcquistatoServices {
 	@Autowired
 	ProdottoAcquistatoRepository repo;
-	
-	
+
 	@Override
 	public ProdottoAcquistato saveOrUpdateProduct(ProdottoAcquistato product) {
 		// TODO Auto-generated method stub
@@ -35,13 +35,13 @@ public class ProdottoAcquistatoServicesImpl implements ProdottoAcquistatoService
 	@Override
 	public void deleteProduct(int id) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public List<ProdottoAcquistato> getListAcquistiByTransazazioneId(Transazione transazione) {
 		// TODO Auto-generated method stub
-		return repo.findByTransazione(transazione);
+		return repo.findByTransazioneIdTransazioneIn(transazione.getIdTransazione());
 	}
 
 }

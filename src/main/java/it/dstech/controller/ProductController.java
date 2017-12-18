@@ -232,18 +232,7 @@ public class ProductController {
 		}
 	}
 
-	@GetMapping("/getListProdottiByTransazioneId/{id}")
-	public ResponseEntity<List<ProdottoAcquistato>> getListProductAcquistatiByUserId (@PathVariable ("id") int id) {
-		try {
-			
-			List<ProdottoAcquistato> listaTransazione = (List<ProdottoAcquistato>) prodottoAcquistatoService.getListAcquistiByTransazazioneId(transazioneService.findById(id));
-			return new ResponseEntity<List<ProdottoAcquistato>>(listaTransazione, HttpStatus.OK);
-		} catch (Exception e) {
-			logger.info("Stampa lista prodotti da user id fallita" + e);
-			return new ResponseEntity<List<ProdottoAcquistato>>(HttpStatus.INTERNAL_SERVER_ERROR);
-
-		}
-	}
+	
 
 	@GetMapping("/getListByCategoria/{categoria}")
 	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria") Category categoria) {
@@ -256,9 +245,9 @@ public class ProductController {
 		}
 	}
 
-	@PostMapping("/addProductById/{idCarta}/{codSegreto}")
+	@PostMapping("/addProductById/{idCarta}")
 	public ResponseEntity<Product> addProdotto(@RequestBody List<Product> carrello,
-			@PathVariable("idCarta") int idCarta, @PathVariable("codSegreto") String codSegreto) {
+			@PathVariable("idCarta") int idCarta) {
 		try {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			User user = userServices.findByUsername(auth.getName());
@@ -284,7 +273,7 @@ public class ProductController {
 			transazioneService.saveTransazione(transazione);
 			for (Product prodotto : carrello) {
 				// controllo scadenza
-				if (trovato && codSegreto.equals(carta.getCcv()) && dataOggi.isBefore(scadenza)
+				if (trovato  && dataOggi.isBefore(scadenza)
 						&& carta.getCredito() >= productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
 					if (!codiceEstratto) {
 						Random random = new Random();
