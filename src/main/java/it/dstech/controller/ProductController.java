@@ -235,7 +235,6 @@ public class ProductController {
 	@GetMapping("/getListProdottiByTransazioneId/{id}")
 	public ResponseEntity<List<ProdottoAcquistato>> getListProductAcquistatiByUserId (@PathVariable ("id") int id) {
 		try {
-
 			
 			List<ProdottoAcquistato> listaTransazione = (List<ProdottoAcquistato>) prodottoAcquistatoService.getListAcquistiByTransazazioneId(transazioneService.findById(id));
 			return new ResponseEntity<List<ProdottoAcquistato>>(listaTransazione, HttpStatus.OK);
