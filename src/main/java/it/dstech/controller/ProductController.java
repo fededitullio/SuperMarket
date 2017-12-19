@@ -213,7 +213,7 @@ public class ProductController {
 					carta.setCredito(creditoAggiornato);
 					userServices.saveUser(user);
 					creditCardService.saveCreditCard(carta);
-					double quantità = productService.getProductById(prodotto.getId()).getQuantitaDisponibile() - 1;
+					double quantità = productService.getProductById(prodotto.getId()).getQuantitaDisponibile() - prodotto.getQuantitaDaAcquistare();
 					productService.getProductById(prodotto.getId()).setQuantitaDisponibile(quantità);
 					productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
 				} else {
