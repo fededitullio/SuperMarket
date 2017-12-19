@@ -145,6 +145,92 @@ public class ProductController {
 		}
 	}
 
+	
+
+	@GetMapping("/getListByCategoria/{categoria}")
+	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria") Category categoria) {
+		try {
+			List<Product> listaCategoria = (List<Product>) productService.getListProductByCategoria(categoria);
+			return new ResponseEntity<List<Product>>(listaCategoria, HttpStatus.OK);
+		} catch (Exception e) {
+			logger.info("Stampa lista categoria fallita");
+			return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/addProductById/{idCarta}")
+	public ResponseEntity<Product> addProdotto(@RequestBody List<Product> carrello,
+			@PathVariable("idCarta") int idCarta) {
+		try {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			User user = userServices.findByUsername(auth.getName());
+			CreditCard carta = creditCardService.trovaIdCarta(idCarta);
+
+			boolean trovato = false;
+			if (carta != null) {
+				for (CreditCard credit : creditCardService.trovaCarteIdUtente(user.getId())) {
+					if (credit.getId() == carta.getId())
+						trovato = true;
+				}
+			}
+
+			// Trasformazione in localDate della scadenza della carta di credito (MM/AA)
+			LocalDate dataOggi = LocalDate.now();
+			boolean codiceEstratto = false;
+			int codice = 0;
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+			String date = carta.getScadenza();
+			YearMonth scadenzaMese = YearMonth.parse(date, formatter);
+			LocalDate scadenza = scadenzaMese.atEndOfMonth();
+			Transazione transazione = new Transazione();
+			transazioneService.saveTransazione(transazione);
+			for (Product prodotto : carrello) {
+				// controllo scadenza
+				if (trovato  && dataOggi.isBefore(scadenza)
+						&& carta.getCredito() >= productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
+					if (!codiceEstratto) {
+						Random random = new Random();
+						codice = random.nextInt(10000);
+						codiceEstratto = true;
+						transazione.setCodOrdine(codice);
+						transazione.setIdUser(user.getId());
+					}
+					logger.info(prodotto);
+					ProdottoAcquistato prodottoAcquistato = new ProdottoAcquistato(prodotto.getNome(),
+							prodotto.getMarca(), prodotto.getDataScadenza(), prodotto.getCategoria(),
+							prodotto.getQuantitaDisponibile(), prodotto.getQuantitaDaAcquistare(), prodotto.getUnita(),
+							prodotto.getPrezzoUnitario(), prodotto.getPrezzoSenzaIva(), prodotto.getPrezzoIvato(),
+							prodotto.getImg(), prodotto.getOfferta(), prodotto.getPrezzoScontato());
+					logger.info(prodottoAcquistato);
+
+					transazione.getProduct().add(prodottoAcquistato);
+					logger.info(transazione.getProduct());
+					prodottoAcquistato.setTransazione(transazione);
+					prodottoAcquistatoService.saveOrUpdateProduct(prodottoAcquistato);
+					double creditoAggiornato = carta.getCredito()
+							- productService.getProductById(prodotto.getId()).getPrezzoScontato()
+									* prodotto.getQuantitaDaAcquistare();
+					carta.setCredito(creditoAggiornato);
+					userServices.saveUser(user);
+					creditCardService.saveCreditCard(carta);
+					double quantità = productService.getProductById(prodotto.getId()).getQuantitaDisponibile() - 1;
+					productService.getProductById(prodotto.getId()).setQuantitaDisponibile(quantità);
+					productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
+				} else {
+					logger.info("aggiunta prodotto fallita");
+					
+					return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+			transazioneService.saveTransazione(transazione);
+			return new ResponseEntity<Product>(HttpStatus.OK);
+		} catch (Exception e) {
+			logger.info(e);
+			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	
 	@GetMapping("/generaOfferte")
 	public ResponseEntity<String> generaOfferte() {
 		List<StoricoOfferte> lista = storicoServices.getListStoricoOfferte();
@@ -233,123 +319,7 @@ public class ProductController {
 	}
 
 	
-
-	@GetMapping("/getListByCategoria/{categoria}")
-	public ResponseEntity<List<Product>> getListProductByCategoria(@PathVariable("categoria") Category categoria) {
-		try {
-			List<Product> listaCategoria = (List<Product>) productService.getListProductByCategoria(categoria);
-			return new ResponseEntity<List<Product>>(listaCategoria, HttpStatus.OK);
-		} catch (Exception e) {
-			logger.info("Stampa lista categoria fallita");
-			return new ResponseEntity<List<Product>>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@PostMapping("/addProductById/{idCarta}")
-	public ResponseEntity<Product> addProdotto(@RequestBody List<Product> carrello,
-			@PathVariable("idCarta") int idCarta) {
-		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			User user = userServices.findByUsername(auth.getName());
-			CreditCard carta = creditCardService.trovaIdCarta(idCarta);
-
-			boolean trovato = false;
-			if (carta != null) {
-				for (CreditCard credit : creditCardService.trovaCarteIdUtente(user.getId())) {
-					if (credit.getId() == carta.getId())
-						trovato = true;
-				}
-			}
-
-			// Trasformazione in localDate della scadenza della carta di credito (MM/AA)
-			LocalDate dataOggi = LocalDate.now();
-			boolean codiceEstratto = false;
-			int codice = 0;
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
-			String date = carta.getScadenza();
-			YearMonth scadenzaMese = YearMonth.parse(date, formatter);
-			LocalDate scadenza = scadenzaMese.atEndOfMonth();
-			Transazione transazione = new Transazione();
-			transazioneService.saveTransazione(transazione);
-			for (Product prodotto : carrello) {
-				// controllo scadenza
-				if (trovato  && dataOggi.isBefore(scadenza)
-						&& carta.getCredito() >= productService.getProductById(prodotto.getId()).getPrezzoIvato()) {
-					if (!codiceEstratto) {
-						Random random = new Random();
-						codice = random.nextInt(10000);
-						codiceEstratto = true;
-						transazione.setCodOrdine(codice);
-						transazione.setIdUser(user.getId());
-					}
-					ProdottoAcquistato prodottoAcquistato = new ProdottoAcquistato(prodotto.getNome(),
-							prodotto.getMarca(), prodotto.getDataScadenza(), prodotto.getCategoria(),
-							prodotto.getQuantitaDisponibile(), prodotto.getQuantitaDaAcquistare(), prodotto.getUnita(),
-							prodotto.getPrezzoUnitario(), prodotto.getPrezzoSenzaIva(), prodotto.getPrezzoIvato(),
-							prodotto.getImg(), prodotto.getOfferta(), prodotto.getPrezzoScontato());
-					logger.info(prodottoAcquistato);
-
-					transazione.getProduct().add(prodottoAcquistato);
-					logger.info(transazione.getProduct());
-					prodottoAcquistato.setTransazione(transazione);
-					prodottoAcquistatoService.saveOrUpdateProduct(prodottoAcquistato);
-					double creditoAggiornato = carta.getCredito()
-							- productService.getProductById(prodotto.getId()).getPrezzoScontato()
-									* prodotto.getQuantitaDaAcquistare();
-					carta.setCredito(creditoAggiornato);
-					userServices.saveUser(user);
-					creditCardService.saveCreditCard(carta);
-					double quantità = productService.getProductById(prodotto.getId()).getQuantitaDisponibile() - 1;
-					productService.getProductById(prodotto.getId()).setQuantitaDisponibile(quantità);
-					productService.saveOrUpdateProduct(productService.getProductById(prodotto.getId()));
-				} else {
-					logger.info("aggiunta prodotto fallita");
-					
-					return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-			}
-			transazioneService.saveTransazione(transazione);
-			return new ResponseEntity<Product>(HttpStatus.OK);
-		} catch (Exception e) {
-			logger.info(e);
-			return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	// @PostMapping("/deleteProductFromListById/{id}")
-	// public ResponseEntity<Product> deleteProductFromListById(@PathVariable("id")
-	// int id) {
-	// try {
-	// Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	// User user = userService.getByUsername(auth.getName());
-	// List<Product> lista = productService.getListProductByUserId(user.getId());
-	// boolean trovato = false;
-	// Product prodotto = productService.getProductById(id);
-	// for (Product prod : lista) {
-	// if (prod.getId() == prodotto.getId())
-	// trovato = true;
-	// }
-	//
-	// if (trovato) {
-	// user.getListaProdotti().remove(prodotto);
-	// int quantità = prodotto.getQuantità();
-	// quantità++;
-	// productService.getProductById(id).setQuantità(quantità);
-	// userService.saveOrUpdateUser(user);
-	// prodotto.getUser().remove(user);
-	// productService.saveOrUpdateProduct(prodotto);
-	// return new ResponseEntity<Product>(HttpStatus.OK);
-	// }
-	// else {
-	// logger.info("Eliminazione del prodotto dalla lista falita");
-	// return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
-	// }
-	//
-	// }catch(Exception e) {
-	// logger.info("Eliminazione del prodotto dalla lista falita");
-	// return new ResponseEntity<Product>(HttpStatus.INTERNAL_SERVER_ERROR);
-	// }
-	// }
+	
 	@PostMapping("/popolaDb")
 	public ResponseEntity<Void> popolaDb() {
 		try {

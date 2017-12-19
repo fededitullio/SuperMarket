@@ -99,13 +99,8 @@ public class Product {
 	public double getQuantitaDaAcquistare() {
 		return quantitaDaAcquistare;
 	}
-	@Override
-	public String toString() {
-		return "Product [nome=" + nome + ", marca=" + marca + ", dataScadenza=" + dataScadenza + ", categoria="
-				+ categoria + ", quantitaDisponibile=" + quantitaDisponibile + ", unità=" + unita + ", prezzoUnitario="
-				+ prezzoUnitario + ", prezzoIvato=" + prezzoIvato + ", offerta=" + offerta + ", prezzoScontato="
-				+ prezzoScontato + "]";
-	}
+	
+	
 	public void setQuantitaDaAcquistare(double quantitaDaAcquistare) {
 		this.quantitaDaAcquistare = quantitaDaAcquistare;
 	}
@@ -160,6 +155,13 @@ public class Product {
 
 	public void sconto() {
 		this.prezzoScontato=prezzoIvato-prezzoIvato*offerta/100;
+	}
+	@Override
+	public String toString() {
+		return "Product [nome=" + nome + ", marca=" + marca + ", dataScadenza=" + dataScadenza + ", categoria="
+				+ categoria + ", quantitaDisponibile=" + quantitaDisponibile + ", unità=" + unita + ", prezzoUnitario="
+				+ prezzoUnitario + ", prezzoIvato=" + prezzoIvato + ", offerta=" + offerta + ", prezzoScontato="
+				+ prezzoScontato + "]";
 	}
 	}
 	
